@@ -1,14 +1,17 @@
-var express = require('express');
-var bodyParser = require('body-parser');
-
+const _ = require('lodash');
+const express = require('express');
+const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
+
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
 
-var app = express();
+const app = express();
 app.use(bodyParser.json());
-var port = process.env.PORT || 3000;
+const port = process.env.PORT || 3000;
+
+
 app.post('/todos',(req,res) => {
     var todo = new Todo({
         text:req.body.text
@@ -55,14 +58,50 @@ app.delete('/todos/:id',(req,res) =>{
         return res.status(404).send();
     }
 
-    Todo.findByIdAndRemove(id).then((result) =>{
-        if(!result){
+    Todo.findByIdAndRemove(id).then((todo) =>{
+        if(!todo){
             return res.status(404).send();
         }
-        res.send(result);
+        res.send({todo});
     }).catch((e) => res.status(400).send());
 });
 
+app.patch('/todos/:id',(req,res) =>{
+    var id = req.params.id;
+    var body = _.pick(req.body, ['text','completed']);
+    if(!ObjectID.isValid(id)){
+        return res.status(404).send();
+    }
+    if(_.isBoolean(body.completed) && body.completed){
+        // if its boolean and true
+        body.completedAt = new Date().getTime();
+    }else{
+        // if not bolean and not true
+        body.completed = false;
+        body.completedAt = null;
+    }
+    Todo.findByIdAndUpdate(id,{$set: body}, {new:true}).then((todo) =>{
+        if(!todo){
+            res.status(404).send();
+        }
+        res.send({todo}); 
+
+    }).catch((err) => {
+        res.status(400).send();
+    });
+});
+
+app.post('/users',(req,res) => {
+    var body = _.pick(req.body,['email','password']);
+    
+    var user = new User(body);
+    user.save().then((doc) =>{
+        res.send(doc);
+    },(err) =>{
+        res.status(400).send(err);
+
+    });
+});
 
 app.listen(port, () => console.log(`Started on port ${port}`));
 
