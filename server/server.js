@@ -1,10 +1,12 @@
-var express = require('express');
-var bodyParser = require('body-parser');
+const _ = require('lodash');
+const express = require('express');
+const bodyParser = require('body-parser');
 
 const {ObjectID} = require('mongodb');
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
+var {authenticate} = require('./middleware/authenticate')
 
 var app = express();
 app.use(bodyParser.json());
@@ -44,6 +46,27 @@ app.get('/todos/:id', (req,res) =>{
         res.status(400).send();
     });
     
+});
+
+app.post('/users', (req,res) =>{
+    var body = _.pick(req.body, ['email','password']);
+    var user = new User(body);
+
+
+    user.save().then(() =>{
+        return user.generateAuthToken();
+        // res.send(user);
+    }).then((token) =>  {
+        res.header('x-auth', token).send(user);
+    }).catch((err) => {
+        res.status(400).send();  
+    })
+});
+
+
+
+app.get('/users/me', authenticate, (req,res) =>{
+    res.send(req.user);
 });
 
 app.listen('3000', () => console.log('Started on port 3000'));
