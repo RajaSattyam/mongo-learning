@@ -1,3 +1,4 @@
+
 require('./config/config');
 const _ = require('lodash');
 const express = require('express');
@@ -8,16 +9,17 @@ var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
 var {authenticate} = require('./middleware/authenticate')
-
+require('./cache'); 
 const app = express();
 const port = process.env.PORT;
 app.use(bodyParser.json());
 
 
 
-app.post('/todos',(req,res) => {
+
+app.post('/todos',authenticate,(req,res) => {
     var todo = new Todo({
-        text:req.body.text,
+        text:req.body.text, 
         _creator:req.user._id
     });
     todo.save().then((doc) =>{
@@ -28,10 +30,11 @@ app.post('/todos',(req,res) => {
     });
 });
  
-app.get('/todos', authenticate, (req,res) => {
+app.get('/todos', authenticate, async(req,res) => {
     Todo.find({
-        _creator:req.body._id
+        _creator:req.user._id
     }).then((todos) =>{
+        console.log('Serving from MongoDB');
         res.status(200).send({todos});
     },(e) => {
         res.status(400).send(e);
