@@ -43,7 +43,7 @@ UserSchema.methods.toJSON = function(){
 };
 
 
-// generate instance methods -> they have access to individual document
+// generate instance methods -> they have access to individual document document instance
 
 UserSchema.methods.generateAuthToken = function(){
     var user = this;
@@ -57,6 +57,7 @@ UserSchema.methods.generateAuthToken = function(){
     })
 };
 
+//statics are the methods defined on the Model. 
 UserSchema.statics.findByToken = function(token){
     var User = this;
     var decoded;
@@ -88,7 +89,7 @@ UserSchema.pre('save', function(next){
             });
         });
     }else{
-        next();
+        next(); 
     }
 });
 

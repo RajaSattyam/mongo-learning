@@ -1,8 +1,13 @@
-const {SHA256} = require('crypto-js');
+//const {SHA256} = require('crypto-js');
 const jwt = require('jsonwebtoken');
 
-jwt.sign
-jwt.verify
+var token = jwt.sign({id:23,email:'ashutosh@mishra'},'mysecret');
+console.log('token',token);
+var verified = jwt.verify('token','mysecret');
+console.log('verified',verified);
+var decode = jwt.decode(token,'mysecret');
+console.log('decode', decode);
+
 
 // var message = 'I am user 3';
 
