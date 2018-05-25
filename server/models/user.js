@@ -43,7 +43,7 @@ UserSchema.methods.toJSON = function(){
 };
 
 
-// generate instance methods -> they have access to individual document
+// generate instance methods -> they have access to individual document document instance
 
 UserSchema.methods.generateAuthToken = function(){
     var user = this;
@@ -116,7 +116,7 @@ UserSchema.pre('save', function(next){
             });
         });
     }else{
-        next();
+        next(); 
     }
 });
 
