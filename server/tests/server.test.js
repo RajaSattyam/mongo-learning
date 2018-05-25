@@ -8,7 +8,7 @@ const{ObjectID} = require('mongodb');
 const {todos,populateTodos} = require('./seed/seed');
 
 
-beforeEach(populateTodos);
+beforeEach();
 
 describe('POST /todos', () =>{
     it('should create a new todo', (done) =>{
@@ -34,7 +34,7 @@ describe('POST /todos', () =>{
 
     it('should not create todo with invalid body data',(done) =>{
         request(app)
-         .post('/todos')
+         .post('/todos')    
          .send({})
          .expect(400)
          .end((err, res) =>{
